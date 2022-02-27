@@ -1,0 +1,52 @@
+IN 10H
+
+START:
+
+MVI A,10H	;screen switch-off
+STA 0900H
+STA 0901H
+STA 0902H
+STA 0903H
+STA 0904H
+STA 0905H
+
+CALL KIND 	;reading X
+RLC
+RLC
+RLC
+RLC		;mul x16
+MOV B,A	;storing decades in B
+CALL KIND	;reading Y
+ADD B		;A stores the number in hex
+CALL DECA
+LXI D,0900H	;initial address for STDM
+CALL STDM	;printing XY in dec on display
+CALL DCD
+
+JMP START
+
+DECA:		;converting data of A hex->dec and storing it to memory
+PUSH H	
+PUSH D
+MVI D,FFH	;initiating counter
+HUN:		;hundred's counter
+INR D		
+SUI 64H	;XY - 100 	
+JNC HUN	;while (XY-100)>0, increase D
+ADI 64H	;re-adding to get decades
+LXI H,0902H	;storing hundreds in the address of the 3rd LSB
+MOV M,D	
+MVI D,FFH	;re-initiating counter
+DEC:		;decade's counter
+INR D		
+SUI 0AH	;XY - 10	
+JNC DEC	;while (XY-10)>0, increase D
+ADI 0AH	;re-adding to get units
+LXI H,0901H	;storing decades in the address of the 2nd LSB
+MOV M,D	
+STA 0900H	;storing units in the address of the 1st LSB
+POP D
+POP H
+RET
+
+END

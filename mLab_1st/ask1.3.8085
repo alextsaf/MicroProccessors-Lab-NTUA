@@ -1,0 +1,79 @@
+IN 10H
+
+LXI B,01F4H	;0.5s Delay
+MVI D,01H	;train at LSB
+MOV A,D	;counter D
+CMA		;reverse logic of LEDs
+STA 3000H	
+
+START:
+LDA 2000H	;check for MSB
+MOV E,A
+ANI 80H
+CPI 80H
+JNZ START	;if MSB is set, start moving left
+MOV A,E
+ANI 01H
+CPI 01H
+JNZ START
+JMP STARTL
+
+STARTL:
+CALL DELB	;extra 0.5s delay at LSB
+GOLEFT:
+LDA 2000H	;check for MSB
+MOV E,A
+ANI 80H
+CPI 80H
+JNZ GOLEFT
+MOV A,E
+ANI 01H
+CPI 01H
+JNZ GOR	
+MOV A,D	
+CPI 80H
+JZ STARTR	;if the train reaches the MSB, change direction
+RLC		;else keep moving left
+MOV D,A
+CMA
+STA 3000H	;LED on
+CALL DELB	
+JMP GOLEFT
+
+STARTR:
+CALL DELB	;extra 0.5s delay at MSB
+GORIGHT:
+LDA 2000H	;check for MSB
+MOV E,A
+ANI 80H
+CPI 80H
+JNZ GORIGHT
+MOV A,E
+ANI 01H
+CPI 01H
+JNZ GOL
+MOV A,D
+CPI 01H
+JZ STARTL	;if the train reaches the LSB, change direction
+RRC		;else keep moving right
+MOV D,A
+CMA
+STA 3000H	;LED on
+CALL DELB
+JMP GORIGHT
+
+GOL:
+LDA 2000H
+ANI 01H
+CPI 01H
+JZ STARTL
+JMP GOL
+
+GOR:
+LDA 2000H
+ANI 01H
+CPI 01H
+JZ STARTR
+JMP GOR
+
+END

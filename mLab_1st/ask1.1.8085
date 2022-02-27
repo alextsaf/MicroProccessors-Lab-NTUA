@@ -1,0 +1,62 @@
+IN 10H
+
+LXI B,03E8H	;1s delay
+MVI D,00H	;clock counter
+
+START:
+LDA 2000H	;input
+PUSH PSW
+ANI 0FH	;4LSB
+MOV E,A	;storing input in E 
+POP PSW
+ANI 80H	;MSB check
+CPI 80H	;if MSB is set, start counting up
+JZ COUNTUP	;else continue checking
+JMP START
+
+COUNTUP:
+LDA 2000H	;MSB check
+ANI 80H
+CPI 80H
+JNZ STOPUP
+CALL DELB	;delay 1s
+MOV A,D	
+CMP E		;compare counter D to limit E
+JZ COUNTDOWN	;if equal, start counting down
+CMA		;LEDs implemented with reverse logic
+STA 3000H	;output
+INR D		;counter increment and repeat
+JMP COUNTUP
+
+COUNTDOWN:
+LDA 2000H	;MSB check
+ANI 80H
+CPI 80H
+JNZ STOPDOWN
+CALL DELB
+MOV A,D
+CPI 00H	;compare counter D to zero
+JZ START	;if equal, check for new input
+CMA		
+STA 3000H
+DCR D		;counter decrement and repeat
+JMP COUNTDOWN
+
+STOPUP:		;loop for MSB check
+LDA 2000H
+ANI 80H
+CPI 80H
+JNZ STOPUP
+JMP COUNTUP
+
+STOPDOWN:		;loop for MSB check
+LDA 2000H
+ANI 80H
+CPI 80H
+JNZ STOPDOWN
+JMP COUNTDOWN
+
+
+END
+
+
