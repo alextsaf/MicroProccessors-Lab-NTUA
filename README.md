@@ -1,6 +1,6 @@
 # MicroProcessors Lab - NTUA 2021-2022
 ## Members:
-  - Christina Kostaki - el18136
+  - Christiana Kostaki - el18136
   - Alexandros Tsafos - el18211
 
 ### 1. 8085 Intro Assembly Programming
